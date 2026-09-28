@@ -56,7 +56,11 @@ describe("codama", () => {
     program.programId,
   );
   const [contributorAccount] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("contributor"), fundraiser.toBuffer(), provider.publicKey.toBuffer()],
+    [
+      Buffer.from("contributor"),
+      fundraiser.toBuffer(),
+      provider.publicKey.toBuffer(),
+    ],
     program.programId,
   );
 
@@ -138,7 +142,10 @@ describe("codama", () => {
     // assert.strictEqual(decoded.amountToRaise, BigInt(TARGET));
     // assert.strictEqual(decoded.currentAmount, BigInt(AMOUNT));
     // assert.strictEqual(decoded.bump, viaAnchor.bump);
-    assert.strictEqual(FUNDRAISER_PROGRAM_ADDRESS, program.programId.toBase58());
+    assert.strictEqual(
+      FUNDRAISER_PROGRAM_ADDRESS,
+      program.programId.toBase58(),
+    );
 
     const info = await provider.connection.getAccountInfo(fundraiser);
     assert.isNotNull(info);
@@ -166,7 +173,7 @@ describe("codama", () => {
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .instruction();
-  
+
     const kitIx = getContributeInstruction({
       contributor: createNoopSigner(address(provider.publicKey.toBase58())),
       mintToRaise: address(mint.toBase58()),
@@ -177,12 +184,12 @@ describe("codama", () => {
       tokenProgram: address(TOKEN_PROGRAM_ID.toBase58()),
       amount: AMOUNT,
     });
-  
+
     assert.isTrue(
       Buffer.from(Uint8Array.from(kitIx.data)).equals(anchorIx.data),
       "instruction data differs",
     );
-  
+
     assert.deepStrictEqual(
       kitIx.accounts.map((a) => a.address),
       anchorIx.keys.map((k) => k.pubkey.toBase58()),
@@ -199,42 +206,42 @@ describe("codama", () => {
       vault: address(vault.toBase58()),
       amount: AMOUNT,
     });
-  
+
     const got = ix.accounts.map((a) => a.address);
-  
+
     assert.strictEqual(
       got[3],
       contributorAccount.toBase58(),
       "contributorAccount",
     );
-  
-    assert.strictEqual(
-      got[4],
-      contributorAta.toBase58(),
-      "contributorAta",
-    );
-  
-    assert.strictEqual(
-      got[6],
-      TOKEN_PROGRAM_ID.toBase58(),
-      "tokenProgram",
-    );
+
+    assert.strictEqual(got[4], contributorAta.toBase58(), "contributorAta");
+
+    assert.strictEqual(got[6], TOKEN_PROGRAM_ID.toBase58(), "tokenProgram");
   });
 
   // ─── BONUS · send it (optional) ────────────────────────────────────────────
-  it.skip("BONUS · a Codama-built instruction goes through Anchor's provider", async () => {
+  it("BONUS · a Codama-built instruction goes through Anchor's provider", async () => {
     const before = BigInt(
       (await provider.connection.getTokenAccountBalance(vault)).value.amount,
     );
 
-    // const ix = await getContributeInstructionAsync({ ... });
-    // await provider.sendAndConfirm(
-    //   new anchor.web3.Transaction().add(toWeb3Instruction(ix)),
-    // );
+    const ix = await getContributeInstructionAsync({
+      contributor: createNoopSigner(address(provider.publicKey.toBase58())),
+      mintToRaise: address(mint.toBase58()),
+      fundraiser: address(fundraiser.toBase58()),
+      vault: address(vault.toBase58()),
+      amount: AMOUNT,
+    });
+
+    await provider.sendAndConfirm(
+      new anchor.web3.Transaction().add(toWeb3Instruction(ix)),
+    );
 
     const after = BigInt(
       (await provider.connection.getTokenAccountBalance(vault)).value.amount,
     );
+
     assert.strictEqual(after - before, BigInt(AMOUNT));
   });
 });
