@@ -166,25 +166,28 @@ describe("codama", () => {
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .instruction();
-
-    // const kitIx = getContributeInstruction({
-    //   contributor: createNoopSigner(address(provider.publicKey.toBase58())),
-    //   mintToRaise: address(mint.toBase58()),
-    //   fundraiser: ...,
-    //   contributorAccount: ...,
-    //   contributorAta: ...,
-    //   vault: ...,
-    //   amount: AMOUNT,
-    // });
-    //
-    // assert.isTrue(Buffer.from(kitIx.data).equals(anchorIx.data), "instruction data differs");
-    // assert.deepStrictEqual(
-    //   kitIx.accounts.map((a) => a.address),
-    //   anchorIx.keys.map((k) => k.pubkey.toBase58()),
-    //   "account order differs",
-    // );
-    void anchorIx;
-    assert.fail("TODO 2: build the Kit instruction and compare it to anchorIx");
+  
+    const kitIx = getContributeInstruction({
+      contributor: createNoopSigner(address(provider.publicKey.toBase58())),
+      mintToRaise: address(mint.toBase58()),
+      fundraiser: address(fundraiser.toBase58()),
+      contributorAccount: address(contributorAccount.toBase58()),
+      contributorAta: address(contributorAta.toBase58()),
+      vault: address(vault.toBase58()),
+      tokenProgram: address(TOKEN_PROGRAM_ID.toBase58()),
+      amount: AMOUNT,
+    });
+  
+    assert.isTrue(
+      Buffer.from(Uint8Array.from(kitIx.data)).equals(anchorIx.data),
+      "instruction data differs",
+    );
+  
+    assert.deepStrictEqual(
+      kitIx.accounts.map((a) => a.address),
+      anchorIx.keys.map((k) => k.pubkey.toBase58()),
+      "account order differs",
+    );
   });
 
   // ─── TODO 3 · resolution ───────────────────────────────────────────────────
