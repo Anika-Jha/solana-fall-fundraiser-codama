@@ -1,14 +1,17 @@
-# Codama Assignment Notes
+## Versions
 
-## Tool Versions
+anchor-cli 1.1.2 · node v24.10.0 · @codama/cli 1.6.3
 
-- Anchor CLI: 1.1.2
-- Solana CLI: 3.1.10
-- Node.js: v24.10.0
-- Codama: 1.6.3
+## TODO 3
 
-## PDA Account Resolution
+Required: fundraiser, vault. Optional: contributorAccount, contributorAta, tokenProgram, systemProgram.
 
-In `contribute`, the `fundraiser` PDA uses the seeds `"fundraiser"` and `fundraiser.maker`. Since `maker` is a field inside the fundraiser account itself, it cannot be used to derive the fundraiser address before the account has been found, so `fundraiser` must be supplied explicitly.
+`contribute` seeds the fundraiser PDA on `fundraiser.maker`, a field of the account being derived, so the finder would need the account to find the account. `initialize` seeds it on the `maker` account, which the caller has, so there it is optional.
 
-In `initialize`, the fundraiser PDA instead uses `"fundraiser"` and the explicit `maker` account, so Codama can derive the fundraiser address from the available inputs. In `contribute`, Codama can derive `contributorAccount` and `contributorAta` because their seeds can be resolved from accounts already available to the instruction.
+## Bonus
+
+attempted
+
+## One thing that surprised me
+
+The generated Codama client could reproduce Anchor's `contribute` instruction byte-for-byte, including the instruction data and account ordering, while also resolving several accounts automatically from the IDL's PDA and ATA definitions.
